@@ -63,3 +63,50 @@
    ```console
     az functionapp deployment source config-zip  -g aci-event-driven -n <function-app-name> --src spawner-functions-compressed.zip
    ```
+
+## Setup Docker Images (Optional)
+1. Setup web-server image
+   - Change folder to web-server
+   ```console
+   cd web-server
+   ```
+   - Build image
+   ```console
+   docker build -t <dockerid>/web-server:latest .
+   ```
+   - Upload image to repository
+   ```console
+   docker push <dockerid>/web-server:latest
+   ```
+   - Change the image reference
+   Open file **azuredeploy.parameters.json** in **arm** folder, update webServerImage value to your repository
+   ```javascript
+    ...
+        "webServerImage": {
+            "value": "<dockerid>/web-server"
+        }
+    ...
+   ```
+
+1. Setup go-worker image
+   - Change folder to go-worker
+   ```console
+   cd ../go-worker
+   ```
+   - Build image
+   ```console
+   docker build -t <dockerid>/go-worker:latest .
+   ```
+   - Upload image to repository
+   ```console
+   docker push <dockerid>/go-worker:latest
+   ```
+   - Change the image reference
+   Open file **index.js** in **spawner-functions/sbqTriggerCreateWorkerContainer** folder, update webServerImage value to your repository
+   ```javascript
+    ...
+        const db_name = "containerstate";
+        const IMAGE = "<dockerid>/go-worker:latest";
+        const MongoClient = require('mongodb').MongoClient;
+    ...
+   ```
